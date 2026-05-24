@@ -1,0 +1,24 @@
+# Dependency directories
+node_modules/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# VS Code personal settings — .vscode/agents/ is gitignored by default
+# Move agents to .github/agents/ to share them with the team
+.vscode/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
