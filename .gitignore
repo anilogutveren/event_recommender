@@ -9,6 +9,11 @@ __pycache__/
 # Build outputs
 dist/
 build/
+.gradle/
+out/
+
+# Gradle wrapper jar (binary — generate locally with: gradle wrapper)
+gradle/wrapper/gradle-wrapper.jar
 *.egg-info/
 
 # VS Code personal settings — .vscode/agents/ is gitignored by default

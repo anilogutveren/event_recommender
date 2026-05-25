@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: event-recommender
+
+  elasticsearch:
+    uris: "http://${ELASTICSEARCH_HOST:localhost}:${ELASTICSEARCH_PORT:9200}"
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+  health:
+    elasticsearch:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
+
+# How often the document count gauge refreshes (ms)
+monitoring:
+  es:
+    document-count-interval-ms: 30000
+
+logging:
+  level:
+    com.eventrecommender: INFO
+    org.springframework.data.elasticsearch: WARN
