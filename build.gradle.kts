@@ -22,9 +22,6 @@ dependencies {
     // Web
     implementation("org.springframework.boot:spring-boot-starter-web")
 
-    // Elasticsearch
-    implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
-
     // Monitoring
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
@@ -39,8 +36,6 @@ dependencies {
 
     // Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:elasticsearch:1.20.4")
-    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
 }
 
 kotlin {
