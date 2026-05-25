@@ -1,8 +1,8 @@
 package com.eventrecommender.monitoring
 
+import co.elastic.clients.elasticsearch.ElasticsearchClient
 import org.springframework.boot.actuate.health.Health
 import org.springframework.boot.actuate.health.HealthIndicator
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations
 import org.springframework.stereotype.Component
 
 /**
@@ -14,17 +14,17 @@ import org.springframework.stereotype.Component
  */
 @Component("elasticsearch")
 class ElasticsearchHealthIndicator(
-    private val elasticsearchOperations: ElasticsearchOperations,
+    private val client: ElasticsearchClient,
 ) : HealthIndicator {
 
     override fun health(): Health =
         runCatching {
-            val clusterHealth = elasticsearchOperations.cluster().health()
+            val response = client.cluster().health { it }
             Health.up()
-                .withDetail("clusterName", clusterHealth.clusterName)
-                .withDetail("status", clusterHealth.status.name)
-                .withDetail("numberOfNodes", clusterHealth.numberOfNodes)
-                .withDetail("numberOfDataNodes", clusterHealth.numberOfDataNodes)
+                .withDetail("clusterName", response.clusterName())
+                .withDetail("status", response.status().jsonValue())
+                .withDetail("numberOfNodes", response.numberOfNodes())
+                .withDetail("numberOfDataNodes", response.numberOfDataNodes())
                 .build()
         }.getOrElse { ex ->
             Health.down()
