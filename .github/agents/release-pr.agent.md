@@ -22,6 +22,18 @@ Pull Requests in this project:
 
 ---
 
+## Skills
+
+Load these skills via `read_file` at the indicated phase.
+
+| Skill | Path | Load at |
+|-------|------|---------|
+| Code Review | `.github/skills/code-review/SKILL.md` | Phase 0 (Pre-flight) — load before creating the PR to run a 5-axis code review and assign severity labels |
+| Security Hardening | `.github/skills/security-hardening/SKILL.md` | Phase 0 (Pre-flight) — load to verify auth, input handling, and API hardening before shipping |
+| SDLC Scoring Rubric | `.github/skills/sdlc-scoring/SKILL.md` | Phase 3 (Phase Evaluation) — load before computing `release-score.md` and the overall SDLC scorecard |
+
+---
+
 ## Session Flow
 
 ### Phase 0: Pre-flight Check

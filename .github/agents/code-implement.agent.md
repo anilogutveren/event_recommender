@@ -29,6 +29,22 @@ Follow the architecture decisions documented in `.stage/docs/architecture.md` an
 
 ---
 
+## Skills
+
+Load these skills via `read_file` at the indicated phase. Do not skip loading — skills contain mandatory checklists.
+
+| Skill | Path | Load at |
+|-------|------|---------|
+| Kotlin Conventions | `.github/skills/kotlin-conventions/SKILL.md` | Phase 1 (Codebase Review) — before evaluating existing code patterns |
+| Incremental Implementation | `.github/skills/incremental-implementation/SKILL.md` | Phase 2 (Implementation) — load before writing any code to follow vertical-slice discipline |
+| OWASP Security | `.github/skills/owasp-security/SKILL.md` | Phase 2 (Implementation) — run the checklist before marking implementation complete |
+| Security Hardening | `.github/skills/security-hardening/SKILL.md` | Phase 2 (Implementation) — load alongside OWASP when implementing auth, user input handling, or API design |
+| Code Simplification | `.github/skills/code-simplification/SKILL.md` | Phase 2 (Implementation) — load when code is working but has deeply nested logic, long functions, or unclear names |
+| Debugging & Investigation | `.github/skills/debugging-and-investigation/SKILL.md` | Bug Fix re-run — load when returning from a `@test-qa` failure to systematically diagnose root cause |
+| SDLC Scoring Rubric | `.github/skills/sdlc-scoring/SKILL.md` | Phase Evaluation — load before computing `code-score.md` |
+
+---
+
 ## Session Flow
 
 ### Phase 0: Pre-flight Check

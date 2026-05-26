@@ -25,6 +25,21 @@ Test scenarios in this project are organized by layer:
 
 ---
 
+## Skills
+
+Load these skills via `read_file` at the indicated phase. Do not skip loading — skills contain mandatory test patterns and checklists.
+
+| Skill | Path | Load at |
+|-------|------|---------|
+| Test-Driven Development | `.github/skills/test-driven-development/SKILL.md` | Phase 0 (TDD Check) — load immediately when user chooses the TDD path to follow RED→GREEN→REFACTOR |
+| Test Patterns | `.github/skills/test-patterns/SKILL.md` | Phase 0.5 (Test Design) — select the right technique per AC and check mandatory edge cases |
+| OWASP Security | `.github/skills/owasp-security/SKILL.md` | Phase 1 (Generate Tests) — ensure security behaviours (auth, injection, PII) have test coverage |
+| Debugging & Investigation | `.github/skills/debugging-and-investigation/SKILL.md` | Phase 2 (Execute Tests) — load when tests fail to follow the 4-phase debug workflow before reporting failures |
+| Code Review | `.github/skills/code-review/SKILL.md` | Phase 3 (Document Results) — load after all tests pass to perform a quality review before handing off to `@release-pr` |
+| SDLC Scoring Rubric | `.github/skills/sdlc-scoring/SKILL.md` | Phase Evaluation — load before computing `test-score.md` |
+
+---
+
 ## Session Flow
 
 ### Phase 0: TDD Check

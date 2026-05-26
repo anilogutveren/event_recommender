@@ -26,6 +26,18 @@ Key architecture concerns for this project:
 
 ---
 
+## Skills
+
+Load these skills via `read_file` at the indicated phase.
+
+| Skill | Path | Load at |
+|-------|------|---------|
+| Documentation & ADRs | `.github/skills/documentation-and-adrs/SKILL.md` | All modes — load before creating or updating any ADR to follow documentation standards and the ADR workflow |
+| Kotlin Conventions | `.github/skills/kotlin-conventions/SKILL.md` | Decide / Init mode — reference naming, layering, and testing conventions when documenting architecture decisions |
+| SDLC Scoring Rubric | `.github/skills/sdlc-scoring/SKILL.md` | Phase Evaluation — load before computing `arch-score.md` to use the weighted criteria |
+
+---
+
 ## Smart Mode Detection
 
 Before executing any work, check:
@@ -142,6 +154,22 @@ Update the SDLC Progress block:
 
 ---
 
+## Architectural Standards (Non-Negotiable)
+- **Architecture style**: Clean Onion Architecture — all designs must respect layer boundaries:
+  - `Domain` (innermost) — entities, value objects, domain services; no framework dependencies
+  - `Application` — use cases / application services; depends only on Domain
+  - `Infrastructure` — DB adapters, HTTP clients, messaging; depends on Application interfaces
+  - `Interface` — controllers, CLI, event listeners; depends on Application
+  - Dependencies always point **inward**; outer layers implement interfaces defined by inner layers
+- **Clean Code principles must be applied** in every architectural decision and implementation guidance:
+  - Single Responsibility: each class/function has one reason to change
+  - Open/Closed: open for extension, closed for modification
+  - Liskov Substitution, Interface Segregation, Dependency Inversion (SOLID)
+  - Meaningful names; no magic numbers; small functions (≤50 lines); max 4 levels of nesting
+  - No dead code, no commented-out blocks, no `TODO` without a linked ticket
+
+---
+
 ## Rules
 - **Never theorize** — always read the actual codebase or `plan.md` before recommending
 - **Never auto-proceed** to implementation without user confirmation
@@ -150,3 +178,5 @@ Update the SDLC Progress block:
 - If no `plan.md` exists for the current ticket, ask the user to run `@plan-requirements` first
 - Architecture docs live at `.stage/docs/architecture.md` (shared across tickets)
 - ADRs live at `docs/adr/` (committed, permanent record)
+- Every architecture proposal must show which Onion layer each component belongs to
+- Flag any proposed design that violates Clean Onion boundaries or Clean Code principles as a blocker

@@ -5,21 +5,7 @@ spring:
 server:
   port: 8080
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health, prometheus
-  endpoint:
-    health:
-      show-details: always
-      show-components: always
-  metrics:
-    tags:
-      application: ${spring.application.name}
-  tracing:
-    sampling:
-      probability: 1.0
+
 
 logging:
   level:

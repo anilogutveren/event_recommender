@@ -23,6 +23,19 @@ This project is an **event recommendation engine**. Core concepts you will refer
 
 ---
 
+## Skills
+
+Load these skills via `read_file` at the indicated phase.
+
+| Skill | Path | Load at |
+|-------|------|---------|
+| Idea Refinement | `.github/skills/idea-refinement/SKILL.md` | Step 0 Scenario B (no issue yet) — load before writing requirements when starting from a raw idea |
+| Spec-Driven Development | `.github/skills/spec-driven-development/SKILL.md` | Step 1 (Requirement Interview) — load for any task > 30 min or when requirements are vague to structure the spec |
+| Planning & Task Breakdown | `.github/skills/planning-and-task-breakdown/SKILL.md` | Step 2 (Write plan.md) — load after requirements are gathered to decompose into vertical slices with a dependency graph |
+| SDLC Scoring Rubric | `.github/skills/sdlc-scoring/SKILL.md` | Step 3 (Phase Evaluation) — load before computing `plan-score.md` to use the weighted criteria |
+
+---
+
 ## Session Flow
 
 ### Step 0: Determine Ticket Scenario
