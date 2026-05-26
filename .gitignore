@@ -20,6 +20,9 @@ gradle/wrapper/gradle-wrapper.jar
 # Move agents to .github/agents/ to share them with the team
 .vscode/
 
+# IDE
+.idea/
+
 # Logs
 *.log
 logs/
