@@ -1,12 +1,32 @@
 spring:
   application:
     name: event-recommender
+  elasticsearch:
+    uris: ${ELASTICSEARCH_URI:http://localhost:9200}
+    username: ${ELASTICSEARCH_USERNAME:}
+    password: ${ELASTICSEARCH_PASSWORD:}
+  data:
+    elasticsearch:
+      repositories:
+        enabled: true
 
 server:
   port: 8080
 
-
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
 
 logging:
   level:
     com.eventrecommender: INFO
+    org.springframework.data.elasticsearch: WARN

@@ -1,7 +1,8 @@
-# ADR-0001 — Kotlin + Spring Boot 3 + JVM 21 as Backend Stack
+# ADR-0002 — Kotlin + Spring Boot 3 + JVM 21 as Backend Stack
 
 **Date:** 2026-05-25
 **Status:** Accepted
+**Category:** Technology
 **Ticket:** FEAT-kotlin-es-monitoring
 
 ---
@@ -19,7 +20,7 @@ The `event_recommender` project needs a backend stack that:
 
 ## Decision
 
-Use **Kotlin 2.x** on **JVM 21** with **Spring Boot 3.x** and **Gradle (Kotlin DSL)**.
+Use **Kotlin 2.x** on **JVM 21** with **Spring Boot 4.x** and **Gradle (Kotlin DSL)**.
 
 ---
 
@@ -43,4 +44,5 @@ Use **Kotlin 2.x** on **JVM 21** with **Spring Boot 3.x** and **Gradle (Kotlin D
 
 ## References
 
-- Architecture: `.stage/docs/architecture.md`
+- Architecture: [ADR-0001 Hexagonal Architecture](../architecture/ADR-0001-hexagonal-architecture.md)
+

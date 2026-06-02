@@ -1,7 +1,8 @@
-# ADR-0002 — Elasticsearch 8.x as Primary Store with Monitoring-First Approach
+# ADR-0003 — Elasticsearch 8.x as Primary Store with Monitoring-First Approach
 
 **Date:** 2026-05-25
 **Status:** Accepted
+**Category:** Technology
 **Ticket:** FEAT-kotlin-es-monitoring
 
 ---
@@ -65,5 +66,6 @@ No SQL/relational database is introduced until a clear need exists.
 
 ## References
 
-- Architecture: `.stage/docs/architecture.md`
-- ADR-0001: Kotlin + Spring Boot choice
+- [ADR-0002: Kotlin + Spring Boot](ADR-0002-kotlin-spring-boot.md)
+- [ADR-0001: Hexagonal Architecture](../architecture/ADR-0001-hexagonal-architecture.md)
+

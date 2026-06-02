@@ -20,7 +20,6 @@
 | `io.spring.dependency-management` | `1.1.7` | `1.1.7` (unchanged) |
 
 ### `settings.gradle.kts`
-- No functional changes (a `pluginManagement` block was added and reverted — it conflicted with the corporate Gradle init script that enforces `artifacts.i.mercedes-benz.com`).
 
 ---
 
@@ -48,11 +47,6 @@
 ---
 
 ## Blocker Note — Spring Boot 4.x
-
-Spring Boot 4.x is **not yet GA** as of 2026-05-26. Available versions:
-- `4.0.0-RC2` / `4.1.0-RC1` — Spring milestone repo only (`https://repo.spring.io/milestone`)
-
-The corporate Gradle init script at Mercedes-Benz **blocks all repositories except `https://artifacts.i.mercedes-benz.com`**. Since the corporate Artifactory mirrors Maven Central (not Spring's milestone repo), SB 4.x RC artifacts are inaccessible.
 
 **Resolution path:**
 1. When Spring Boot 4.x reaches GA and is published to Maven Central, the upgrade from `3.5.3` → `4.x.x` will be a single-line change in `build.gradle.kts`
