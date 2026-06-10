@@ -19,7 +19,7 @@ import java.time.Instant
  * Lives exclusively in the adapter layer.
  * Provides mapping methods to/from the domain Event model.
  */
-@Document(indexName = "events")
+@Document(indexName = "events", createIndex = false)
 data class EventDocument(
     @Id
     val id: String,
