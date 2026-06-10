@@ -1,0 +1,639 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Event Recommender API",
+    "description": "Postman collection for the Event Recommender REST API.\n\nBase URL: http://localhost:8080\nAll endpoints are under /api/v1/events\n\nCategories: MUSIC, SPORTS, ARTS, TECHNOLOGY, FOOD, BUSINESS, EDUCATION, HEALTH, OTHER\n\nError responses follow RFC 7807 Problem Details format:\n- 400 Bad Request — malformed body or invalid enum value\n- 404 Not Found   — event not found\n- 500 Internal Server Error — unexpected error (no stack trace exposed)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "Base URL of the running Event Recommender service"
+    },
+    {
+      "key": "eventId",
+      "value": "",
+      "type": "string",
+      "description": "Event ID captured from a Create Event response (auto-set by test script)"
+    }
+  ],
+  "item": [
+    {
+      "name": "Events",
+      "description": "CRUD operations on events",
+      "item": [
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has id', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.be.a('string').and.not.empty;",
+                  "    // Store for subsequent requests",
+                  "    pm.collectionVariables.set('eventId', json.id);",
+                  "});",
+                  "",
+                  "pm.test('Response has all required fields', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.all.keys('id', 'title', 'description', 'category',",
+                  "        'latitude', 'longitude', 'city', 'country', 'venue',",
+                  "        'startTime', 'endTime', 'tags', 'createdAt');",
+                  "});",
+                  "",
+                  "pm.test('Category is TECHNOLOGY', function () {",
+                  "    pm.expect(pm.response.json().category).to.eql('TECHNOLOGY');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Kotlin Conference Berlin\",\n  \"description\": \"Annual Kotlin developer conference covering language updates, coroutines, and multiplatform.\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\",\n  \"tags\": [\"kotlin\", \"jvm\", \"open-source\"]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Creates a new event.\n\n**Required fields:** title, description, category, latitude, longitude, city, country, venue, startTime, endTime\n**Optional fields:** tags (defaults to empty set)\n\n**Returns:** 201 Created with the full EventResponse body.\n\n**Validation:**\n- title and description must not be blank\n- venue must not be blank\n- endTime must be after startTime\n- category must be one of: MUSIC, SPORTS, ARTS, TECHNOLOGY, FOOD, BUSINESS, EDUCATION, HEALTH, OTHER\n\nThe returned `id` is automatically saved to the `eventId` collection variable."
+          },
+          "response": [
+            {
+              "name": "201 Created — Event created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Kotlin Conference Berlin\",\n  \"description\": \"Annual Kotlin developer conference covering language updates, coroutines, and multiplatform.\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\",\n  \"tags\": [\"kotlin\", \"jvm\", \"open-source\"]\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"title\": \"Kotlin Conference Berlin\",\n  \"description\": \"Annual Kotlin developer conference covering language updates, coroutines, and multiplatform.\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\",\n  \"tags\": [\"kotlin\", \"jvm\", \"open-source\"],\n  \"createdAt\": \"2026-06-10T20:00:00Z\"\n}"
+            },
+            {
+              "name": "400 Bad Request — Missing required field",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"Missing title field\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/problem+json" }],
+              "body": "{\n  \"type\": \"about:blank\",\n  \"title\": \"Bad Request\",\n  \"status\": 400,\n  \"detail\": \"Malformed or invalid request body\",\n  \"instance\": \"/api/v1/events\"\n}"
+            },
+            {
+              "name": "400 Bad Request — Invalid category enum",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  { "key": "Content-Type", "value": "application/json" }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Test Event\",\n  \"description\": \"Test\",\n  \"category\": \"INVALID_CATEGORY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Test Venue\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events"]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/problem+json" }],
+              "body": "{\n  \"type\": \"about:blank\",\n  \"title\": \"Bad Request\",\n  \"status\": 400,\n  \"detail\": \"Malformed or invalid request body\",\n  \"instance\": \"/api/v1/events\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Event by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response id matches requested id', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.id).to.eql(pm.collectionVariables.get('eventId'));",
+                  "});",
+                  "",
+                  "pm.test('Response has all required fields', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.all.keys('id', 'title', 'description', 'category',",
+                  "        'latitude', 'longitude', 'city', 'country', 'venue',",
+                  "        'startTime', 'endTime', 'tags', 'createdAt');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/{{eventId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "{{eventId}}"]
+            },
+            "description": "Retrieves a single event by its ID.\n\n**Path parameter:** `id` — the event's UUID string\n\n**Returns:**\n- 200 OK with EventResponse body when found\n- 404 Not Found when no event with that ID exists\n\nTip: run *Create Event* first — it auto-sets the `eventId` collection variable."
+          },
+          "response": [
+            {
+              "name": "200 OK — Event found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events", "a1b2c3d4-e5f6-7890-abcd-ef1234567890"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"title\": \"Kotlin Conference Berlin\",\n  \"description\": \"Annual Kotlin developer conference.\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\",\n  \"tags\": [\"kotlin\", \"jvm\"],\n  \"createdAt\": \"2026-06-10T20:00:00Z\"\n}"
+            },
+            {
+              "name": "404 Not Found — Event does not exist",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/nonexistent-id",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events", "nonexistent-id"]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/problem+json" }],
+              "body": "{\n  \"type\": \"about:blank\",\n  \"title\": \"Not Found\",\n  \"status\": 404,\n  \"detail\": \"Resource not found\",\n  \"instance\": \"/api/v1/events/nonexistent-id\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0",
+                  "description": "Zero-based page index (default: 0)"
+                },
+                {
+                  "key": "size",
+                  "value": "20",
+                  "description": "Number of events per page (default: 20)"
+                }
+              ]
+            },
+            "description": "Returns a paginated list of all events.\n\n**Query parameters:**\n- `page` (optional, default: 0) — zero-based page number\n- `size` (optional, default: 20) — page size\n\n**Returns:** 200 OK with a JSON array of EventResponse objects (may be empty)."
+          },
+          "response": [
+            {
+              "name": "200 OK — List of events",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events?page=0&size=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n    \"title\": \"Kotlin Conference Berlin\",\n    \"description\": \"Annual Kotlin developer conference.\",\n    \"category\": \"TECHNOLOGY\",\n    \"latitude\": 52.52,\n    \"longitude\": 13.405,\n    \"city\": \"Berlin\",\n    \"country\": \"Germany\",\n    \"venue\": \"Berlin Expo Center\",\n    \"startTime\": \"2026-09-15T09:00:00Z\",\n    \"endTime\": \"2026-09-16T18:00:00Z\",\n    \"tags\": [\"kotlin\", \"jvm\"],\n    \"createdAt\": \"2026-06-10T20:00:00Z\"\n  },\n  {\n    \"id\": \"b2c3d4e5-f6a7-8901-bcde-f12345678901\",\n    \"title\": \"Berlin Half Marathon\",\n    \"description\": \"City-wide half marathon through Berlin landmarks.\",\n    \"category\": \"SPORTS\",\n    \"latitude\": 52.5163,\n    \"longitude\": 13.3779,\n    \"city\": \"Berlin\",\n    \"country\": \"Germany\",\n    \"venue\": \"Brandenburg Gate\",\n    \"startTime\": \"2026-10-05T08:00:00Z\",\n    \"endTime\": \"2026-10-05T14:00:00Z\",\n    \"tags\": [\"running\", \"marathon\"],\n    \"createdAt\": \"2026-06-10T21:00:00Z\"\n  }\n]"
+            },
+            {
+              "name": "200 OK — Empty list (no events)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events?page=0&size=20",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events"],
+                  "query": [
+                    { "key": "page", "value": "0" },
+                    { "key": "size", "value": "20" }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "description": "Personalised event recommendations based on categories and/or location",
+      "item": [
+        {
+          "name": "Get Recommendations — By Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Result count does not exceed limit', function () {",
+                  "    pm.expect(pm.response.json().length).to.be.at.most(10);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categories\": [\"TECHNOLOGY\", \"MUSIC\"],\n  \"limit\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "recommendations"]
+            },
+            "description": "Returns a ranked list of recommended events filtered by preferred categories.\n\n**Request body fields:**\n- `categories` (optional, default: []) — set of preferred Category enum values\n- `limit` (optional, default: 10) — maximum number of results\n- `latitude`, `longitude`, `city`, `country` — ALL four are required together to filter by location\n- `maxDistanceKm` (optional) — radius filter in kilometres (requires full location)\n\n**Returns:** 200 OK with a JSON array of EventResponse objects (may be empty).\n\n**Note:** When `categories` is empty, cold-start recommendations are returned (no category filter applied)."
+          },
+          "response": [
+            {
+              "name": "200 OK — Recommendations returned",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categories\": [\"TECHNOLOGY\", \"MUSIC\"],\n  \"limit\": 10\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/recommendations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events", "recommendations"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n    \"title\": \"Kotlin Conference Berlin\",\n    \"description\": \"Annual Kotlin developer conference.\",\n    \"category\": \"TECHNOLOGY\",\n    \"latitude\": 52.52,\n    \"longitude\": 13.405,\n    \"city\": \"Berlin\",\n    \"country\": \"Germany\",\n    \"venue\": \"Berlin Expo Center\",\n    \"startTime\": \"2026-09-15T09:00:00Z\",\n    \"endTime\": \"2026-09-16T18:00:00Z\",\n    \"tags\": [\"kotlin\", \"jvm\"],\n    \"createdAt\": \"2026-06-10T20:00:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Recommendations — By Category + Location",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categories\": [\"SPORTS\", \"HEALTH\"],\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"maxDistanceKm\": 25.0,\n  \"limit\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "recommendations"]
+            },
+            "description": "Recommendations filtered by both category preference AND geographic proximity.\n\nAll four location fields (`latitude`, `longitude`, `city`, `country`) must be provided together for location filtering to activate. If any one is missing, location filtering is skipped."
+          },
+          "response": [
+            {
+              "name": "200 OK — Geo-filtered recommendations",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categories\": [\"SPORTS\", \"HEALTH\"],\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"maxDistanceKm\": 25.0,\n  \"limit\": 5\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/recommendations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events", "recommendations"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[\n  {\n    \"id\": \"b2c3d4e5-f6a7-8901-bcde-f12345678901\",\n    \"title\": \"Berlin Half Marathon\",\n    \"description\": \"City-wide half marathon through Berlin landmarks.\",\n    \"category\": \"SPORTS\",\n    \"latitude\": 52.5163,\n    \"longitude\": 13.3779,\n    \"city\": \"Berlin\",\n    \"country\": \"Germany\",\n    \"venue\": \"Brandenburg Gate\",\n    \"startTime\": \"2026-10-05T08:00:00Z\",\n    \"endTime\": \"2026-10-05T14:00:00Z\",\n    \"tags\": [\"running\", \"marathon\"],\n    \"createdAt\": \"2026-06-10T21:00:00Z\"\n  }\n]"
+            }
+          ]
+        },
+        {
+          "name": "Get Recommendations — Cold Start (No Preferences)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response is an array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categories\": [],\n  \"limit\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "recommendations"]
+            },
+            "description": "Cold-start scenario: no category preferences provided. The service returns generic recommendations without category filtering.\n\nUseful for new users with no preference history."
+          },
+          "response": [
+            {
+              "name": "200 OK — Cold start (empty categories)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{ "key": "Content-Type", "value": "application/json" }],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"categories\": [],\n  \"limit\": 10\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/events/recommendations",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["api", "v1", "events", "recommendations"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "[]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Cases",
+      "description": "Dedicated requests to exercise error handling (RFC 7807 Problem Details)",
+      "item": [
+        {
+          "name": "Create Event — Missing Title (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Problem Detail has detail field', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('detail');",
+                  "});",
+                  "",
+                  "pm.test('No stack trace in response body', function () {",
+                  "    pm.expect(pm.response.text()).to.not.include('at com.');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"No title provided\",\n  \"category\": \"TECHNOLOGY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Verifies that a missing required field returns 400 with RFC 7807 Problem Details and no stack trace (OWASP A05)."
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event — Invalid Category Enum (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('No stack trace in response body', function () {",
+                  "    pm.expect(pm.response.text()).to.not.include('at com.');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Event\",\n  \"description\": \"Testing invalid enum\",\n  \"category\": \"INVALID_CATEGORY\",\n  \"latitude\": 52.52,\n  \"longitude\": 13.405,\n  \"city\": \"Berlin\",\n  \"country\": \"Germany\",\n  \"venue\": \"Berlin Expo Center\",\n  \"startTime\": \"2026-09-15T09:00:00Z\",\n  \"endTime\": \"2026-09-16T18:00:00Z\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events"]
+            },
+            "description": "Verifies that an invalid category value returns 400. Valid values: MUSIC, SPORTS, ARTS, TECHNOLOGY, FOOD, BUSINESS, EDUCATION, HEALTH, OTHER."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event — Not Found (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/events/00000000-0000-0000-0000-000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "events", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Verifies that requesting an unknown event ID returns 404."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

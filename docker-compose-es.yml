@@ -1,0 +1,46 @@
+# Use postgres/example user/password credentials
+# This is only for local development and testing purposes.
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.0.2
+    ports:
+      - 9200:9200
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.0.2
+    ports:
+      - 5601:5601
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:9.0.2
+    depends_on:
+      - elasticsearch
+      - kibana
+    ports:
+      - 8200:8200
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - output.elasticsearch.hosts=["http://elastic:9200"]
+      - apm-server.auth.anonymous.enabled=true
+      - apm-server.auth.anonymous.allow_service=true
+      - apm-server.auth.anonymous.allow_agent=true
+      - apm-server.kibana.enabled=true
+      - apm-server.kibana.host=http://kibana:5601
+      - apm-server.kibana.agent.enabled=false
+
+  otel-collector:
+    container_name: otel-collector
+    image: otel/opentelemetry-collector-contrib:0.148.0
+    command: [ "--config=/etc/otelcol/config.yml" ]
+    volumes:
+      - ./otel-collector-configs.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+    depends_on:
+      - elasticsearch
