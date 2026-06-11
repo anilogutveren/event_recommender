@@ -29,6 +29,10 @@ dependencies {
     // OpenTelemetry — tracing via Spring Boot auto-instrumentation
     implementation("io.micrometer:micrometer-tracing-bridge-otel")
     implementation("org.springframework.boot:spring-boot-starter-opentelemetry")
+    // OpenTelemetry Logback appender (referenced by logback-spring.xml for log export).
+    // Version 2.21.0-alpha aligns with the OpenTelemetry SDK 1.55.0 pulled in by
+    // spring-boot-starter-opentelemetry.
+    implementation("io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.21.0-alpha")
 
     // Elasticsearch
     implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
