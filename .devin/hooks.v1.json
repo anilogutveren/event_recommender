@@ -1,0 +1,12 @@
+{
+  "UserPromptSubmit": [
+    {
+      "hooks": [
+        {
+          "type": "command",
+          "command": ".devin/scripts/check-private-names.sh"
+        }
+      ]
+    }
+  ]
+}
