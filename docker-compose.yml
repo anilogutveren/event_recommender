@@ -227,7 +227,7 @@ services:
       
       # Admin credentials (dev-only; not a secret)
       CDK_ADMIN_EMAIL: admin@conduktor.io
-      CDK_ADMIN_PASSWORD: admin
+      CDK_ADMIN_PASSWORD: Admin1234!
     depends_on:
       kafka:
         condition: service_healthy
