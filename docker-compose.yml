@@ -1,4 +1,40 @@
+# ============================================================================
+# event_recommender — Integrated Local Development Stack
+# ============================================================================
+# This file defines the complete local development environment for event_recommender.
+# 
+# Services included:
+#   - Spring Boot REST API (app) on port 8080
+#   - Elasticsearch 9.x (search & data store) on port 9200
+#   - Kibana (ES UI) on port 5601
+#   - Kafka Broker (KRaft mode, no Zookeeper) on port 9092 (external), 29092 (internal)
+#   - Conduktor (Kafka UI) on port 8088
+#   - APM Server (application performance monitoring) on port 8200
+#   - OpenTelemetry Collector (trace collection) on ports 4317 (gRPC), 4318 (HTTP)
+#   - Conduktor Postgres (backing store for Conduktor) on port 5432 (internal only)
+#
+# Startup:
+#   docker compose up
+#
+# Reset (remove all data):
+#   docker compose down -v
+#
+# Port Summary:
+#   8080  → Spring Boot App
+#   9200  → Elasticsearch
+#   5601  → Kibana
+#   9092  → Kafka (external clients)
+#   8088  → Conduktor UI
+#   8200  → APM Server
+#   4317  → OTel Collector (gRPC)
+#   4318  → OTel Collector (HTTP)
+#   5432  → Conduktor Postgres (internal only, not exposed to host)
+#
+# See docs/adr/infrastructure/ADR-0004-local-kafka-conduktor-stack.md for design decisions.
+# ============================================================================
+
 services:
+  # === Spring Boot Application ===
   app:
     build: .
     container_name: event-recommender-app
@@ -6,6 +42,221 @@ services:
       - "8080:8080"
     environment:
       - ELASTICSEARCH_URI=http://elasticsearch:9200
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       elasticsearch:
         condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - event-recommender-net
+
+  # === Elasticsearch (Search & Data Store) ===
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:9.4.2
+    container_name: event-recommender-elasticsearch
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-recommender-net
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+
+  # === Kibana (Elasticsearch UI) ===
+  kibana:
+    image: docker.elastic.co/kibana/kibana:9.4.2
+    container_name: event-recommender-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-recommender-net
+
+  # === APM Server (Application Performance Monitoring) ===
+  apm-server:
+    image: docker.elastic.co/apm/apm-server:9.4.2
+    container_name: event-recommender-apm
+    ports:
+      - "8200:8200"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - output.elasticsearch.hosts=["http://elasticsearch:9200"]
+      - apm-server.auth.anonymous.enabled=true
+      - apm-server.auth.anonymous.allow_service=true
+      - apm-server.auth.anonymous.allow_agent=true
+      - apm-server.kibana.enabled=true
+      - apm-server.kibana.host=http://kibana:5601
+      - apm-server.kibana.agent.enabled=false
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8200/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-recommender-net
+
+  # === OpenTelemetry Collector (Trace Collection) ===
+  otel-collector:
+    container_name: event-recommender-otel-collector
+    image: otel/opentelemetry-collector-contrib:0.148.0
+    command: ["--config=/etc/otelcol/config.yml"]
+    volumes:
+      - ./otel-collector-configs.yml:/etc/otelcol/config.yml:ro
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:13133/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-recommender-net
+
+  # === Kafka Broker (KRaft Mode, No Zookeeper) ===
+  # Configuration: Single-node KRaft cluster with advertised listeners for both
+  # internal (Docker) and external (host) connectivity.
+  # See ADR-0004 for design rationale.
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    container_name: event-recommender-kafka
+    ports:
+      - "9092:9092"  # External listener (host access)
+    environment:
+      # KRaft Configuration
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_NODE_ID: 1
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:29093
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk  # Fixed UUID for KRaft cluster (base64-encoded)
+      
+      # Listeners: PLAINTEXT (internal Docker), PLAINTEXT_HOST (external host), CONTROLLER (KRaft)
+      KAFKA_LISTENERS: PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      
+      # Topic & Transaction Settings
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      
+      # Auto-create topics for development convenience
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      
+      # Log configuration
+      KAFKA_LOG_RETENTION_HOURS: 168  # 7 days
+    healthcheck:
+      # Check that broker responds to metadata requests
+      # Confluent cp-kafka images ship the script without the .sh suffix
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    networks:
+      - event-recommender-net
+
+  # === Conduktor Postgres (Backing Store for Conduktor Console) ===
+  # Conduktor Console requires a Postgres database for configuration and state.
+  # This is a local-only service; credentials are dev-only and not secrets.
+  conduktor-postgres:
+    image: postgres:16-alpine
+    container_name: event-recommender-conduktor-postgres
+    environment:
+      POSTGRES_DB: conduktor
+      POSTGRES_USER: conduktor
+      POSTGRES_PASSWORD: conduktor  # Dev-only credentials; not a secret
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U conduktor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - conduktor-postgres-data:/var/lib/postgresql/data
+    networks:
+      - event-recommender-net
+    # Note: Port 5432 is NOT exposed to host; only accessible from within the Docker network
+
+  # === Conduktor Console (Kafka UI) ===
+  # Free-tier Kafka UI for topic inspection, message debugging, and consumer group monitoring.
+  # Pre-configured to connect to local Kafka broker on startup.
+  # See ADR-0004 for design rationale.
+  conduktor:
+    image: conduktor/conduktor-console:latest
+    container_name: event-recommender-conduktor
+    ports:
+      - "8088:8080"  # Remapped from 8080 to avoid conflict with Spring Boot app
+    environment:
+      # Conduktor Console Configuration
+      CDK_CLUSTERS_0_ID: local-kafka
+      CDK_CLUSTERS_0_NAME: Local Kafka
+      CDK_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092  # Internal Docker DNS
+      CDK_CLUSTERS_0_COLOR: "#0013E7"
+      CDK_CLUSTERS_0_ICON: kafka
+      
+      # Postgres Backing Store
+      CDK_DATABASE_URL: "postgresql://conduktor:conduktor@conduktor-postgres:5432/conduktor"
+      
+      # Admin credentials (dev-only; not a secret)
+      CDK_ADMIN_EMAIL: admin@conduktor.io
+      CDK_ADMIN_PASSWORD: admin
+    depends_on:
+      kafka:
+        condition: service_healthy
+      conduktor-postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - event-recommender-net
+
+# ============================================================================
+# Named Volumes
+# ============================================================================
+volumes:
+  elasticsearch-data:
+    driver: local
+  kafka-data:
+    driver: local
+  conduktor-postgres-data:
+    driver: local
+
+# ============================================================================
+# Docker Network
+# ============================================================================
+# All services communicate via this network using service names as DNS hostnames.
+# Example: app connects to Kafka via "kafka:29092"
+networks:
+  event-recommender-net:
+    driver: bridge

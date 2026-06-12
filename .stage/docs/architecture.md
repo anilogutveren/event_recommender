@@ -35,9 +35,14 @@ graph TB
         CACHE[Redis Cache<br/>Hot recommendations]
     end
 
+    subgraph Messaging
+        KAFKA[Kafka Broker<br/>Event Streaming]
+    end
+
     subgraph Observability
         PROM[Micrometer / Prometheus<br/>Metrics]
         OT[OpenTelemetry<br/>Traces]
+        CONDUKTOR[Conduktor UI<br/>Kafka Inspector - Dev Only]
     end
 
     subgraph External
@@ -51,11 +56,14 @@ graph TB
     PREF --> ES
     REC --> ES
     REC --> CACHE
+    GW --> KAFKA
+    REC --> KAFKA
     GW --> ACT
     ACT --> PROM
     GW -.-> OT
     REC -.-> OT
     ES -.-> PROM
+    KAFKA -.-> CONDUKTOR
     GW --> TM
     GW --> EB
 ```
@@ -73,6 +81,8 @@ graph TB
 | Search / Data | Elasticsearch 8.x | ADR-0002 |
 | Monitoring | Micrometer + Prometheus + Actuator | ADR-0002 |
 | Tracing | OpenTelemetry (OTLP) | ADR-0002 |
+| Messaging | Apache Kafka 3.3+ (KRaft) | ADR-0004 |
+| Kafka UI | Conduktor Console (free tier) — dev only | ADR-0004 |
 | Cache | Redis (future — not yet implemented) | TBD |
 | Auth | JWT / Spring Security (future) | TBD |
 
@@ -96,6 +106,33 @@ src/
   test/kotlin/com/eventrecommender/
     ...
 ```
+
+---
+
+## Local Dev Stack
+
+The integrated `docker-compose.yml` includes the complete local development environment:
+
+| Service | Port | Purpose |
+|---------|------|---------|
+| **Spring Boot App** | 8080 | REST API server |
+| **Elasticsearch** | 9200 | Search and data store |
+| **Kibana** | 5601 | Elasticsearch UI and monitoring |
+| **Kafka Broker** | 9092 (external), 29092 (internal) | Event streaming |
+| **Conduktor** | 8088 | Kafka topic inspection and debugging |
+| **APM Server** | 8200 | Application Performance Monitoring |
+| **OTel Collector** | 4317/4318 | OpenTelemetry trace collection |
+
+**Startup**: `docker compose up` boots all services with health checks and service discovery.
+
+**Kafka Configuration**:
+- **Mode**: KRaft (no Zookeeper)
+- **Image**: Confluent Kafka 7.x
+- **Internal DNS**: `kafka:29092` (used by app and containers)
+- **External Access**: `localhost:9092` (used by CLI tools)
+- **Data Persistence**: Named volume `kafka-data`
+
+See [ADR-0004](../../docs/adr/infrastructure/ADR-0004-local-kafka-conduktor-stack.md) for detailed design decisions.
 
 ---
 

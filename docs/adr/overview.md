@@ -9,9 +9,11 @@ docs/adr/
 ├── overview.md              ← you are here
 ├── architecture/            ← Architecture patterns & structural decisions
 │   └── ADR-0001-*
-└── technology/              ← Tech stack, frameworks, data stores
-    ├── ADR-0002-*
-    └── ADR-0003-*
+├── technology/              ← Tech stack, frameworks, data stores
+│   ├── ADR-0002-*
+│   └── ADR-0003-*
+└── infrastructure/          ← Deployment, local dev, messaging, CI/CD
+    └── ADR-0004-*
 ```
 
 ## Categories
@@ -20,8 +22,9 @@ docs/adr/
 |----------|------|-------------|
 | **Architecture** | `architecture/` | Foundational patterns, layer structure, design principles |
 | **Technology** | `technology/` | Language, framework, database, and tooling choices |
+| **Infrastructure** | `infrastructure/` | Deployment, local dev environment, messaging, CI/CD decisions |
 
-> Future categories can be added as needed (e.g., `infrastructure/` for deployment/CI, `security/` for auth decisions).
+> Future categories can be added as needed (e.g., `security/` for auth decisions).
 
 ---
 
@@ -34,6 +37,7 @@ All ADRs use a **unified 4-digit sequential numbering** (`ADR-NNNN`) regardless 
 | [ADR-0001](architecture/ADR-0001-hexagonal-architecture.md) | Hexagonal Architecture as Base Pattern | Architecture | ✅ Accepted |
 | [ADR-0002](technology/ADR-0002-kotlin-spring-boot.md) | Kotlin + Spring Boot 4 + JVM 21 as Backend Stack | Technology | ✅ Accepted |
 | [ADR-0003](technology/ADR-0003-elasticsearch-monitoring-first.md) | Elasticsearch 8.x with Monitoring-First Approach | Technology | ✅ Accepted |
+| [ADR-0004](infrastructure/ADR-0004-local-kafka-conduktor-stack.md) | Local Kafka + Conduktor Stack (Integrated into Main Docker Compose) | Infrastructure | ✅ Accepted |
 
 ---
 
