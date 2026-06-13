@@ -21,6 +21,14 @@ management:
   endpoint:
     health:
       show-details: always
+      # Add `elasticsearch` to the readiness probe so orchestrators (Compose,
+      # Kubernetes) only consider the pod ready when the search backend is
+      # reachable. Liveness intentionally excludes external dependencies.
+      group:
+        readiness:
+          include: "readinessState,elasticsearch"
+          show-details: always
+          show-components: always
   prometheus:
     metrics:
       export:
