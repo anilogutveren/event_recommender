@@ -10,3 +10,13 @@ spring:
     elasticsearch:
       repositories:
         enabled: false
+
+# The main application.yml puts `elasticsearch` in the readiness group, but the
+# Elasticsearch auto-configuration is excluded above for tests, so the indicator
+# is absent. Override the readiness group here to keep the context loadable.
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: "readinessState"

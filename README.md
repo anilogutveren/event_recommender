@@ -135,19 +135,29 @@ See [`.stage/docs/architecture.md`](.stage/docs/architecture.md) for the complet
 
 ## Build & Run
 
-### Build the project
+### Prerequisites
+
+- **JDK 21** for local Gradle builds. Gradle 8.14 does not yet support JDK 25; if your host
+  ships a newer JDK, either install JDK 21 (e.g. `brew install openjdk@21` or via
+  [SDKMAN](https://sdkman.io/)) and point `JAVA_HOME` at it, or skip the host build entirely
+  and use the Docker workflow below — `docker build` and `docker compose up` work end-to-end
+  without a host JDK.
+- **Docker Desktop** (or any Docker engine) with Compose v2 for the local stack.
+
+### Build the project (host)
 
 ```bash
 ./gradlew build          # Compile + test
 ```
 
-### Start the dev server (with Docker Compose)
+### Build & start the dev server (Docker — no host JDK required)
 
 ```bash
-docker compose up        # Start all services
+docker compose up --build   # Build the image and start all services
 ```
 
-The Spring Boot app will be available at **http://localhost:8080**.
+The Spring Boot app will be available at **http://localhost:8080**. The image is now a
+self-contained multi-stage build, so the host does not need Gradle or a JDK.
 
 ### Run tests
 

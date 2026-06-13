@@ -63,3 +63,10 @@ kotlin {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+// Disable the plain (non-executable) jar so build/libs/ contains only the Spring Boot
+// bootJar. This makes the Dockerfile COPY pattern unambiguous and avoids the historical
+// risk of picking up the plain jar (which has no Main-Class manifest entry).
+tasks.named<Jar>("jar") {
+    enabled = false
+}

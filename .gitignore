@@ -12,8 +12,7 @@ build/
 .gradle/
 out/
 
-# Gradle wrapper jar (binary — generate locally with: gradle wrapper)
-gradle/wrapper/gradle-wrapper.jar
+# Note: gradle/wrapper/gradle-wrapper.jar IS committed (standard Gradle convention)
 *.egg-info/
 
 # VS Code personal settings — .vscode/agents/ is gitignored by default
